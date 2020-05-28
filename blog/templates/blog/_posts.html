@@ -1,0 +1,79 @@
+{% if posts %}
+    {% for post in posts %}
+
+<a href="{{ url_for('.show_post', post_id=post.id) }}" style="text-decoration:none;">
+<div class="shadow-sm p-3 mb-5 bg-white rounded jumbotron jumbotron-fluid" name="sign" >
+
+       <h1 class="display-3 " style="color: #111111;margin-left: 10px;margin-top: 5px; ">{{ post.title }}</h1>
+    <p class="h6">Comments: {{ post.comments|length }}
+        </p>
+    <p class="h6" style="padding-left: 50%">
+        {% if post.tags %}
+            {% for tag in post.tags%}
+                <h3 style="display: inline"><span class="badge badge-warning">{{ tag.body }}</span></h3>
+               {% endfor %}
+     {% endif %}
+        </p>
+</div></a>
+
+
+{% if not loop.last %}
+<div name="ss">
+    <hr>
+</div>
+
+
+
+{% endif %}
+
+{% endfor %}
+
+{% else %}
+    <div class="tip">
+        <h5>No posts yet.</h5>
+    </div>
+
+
+
+{% endif %}
+<script>
+var abc=document.getElementsByName('sign');
+for(i=0;i<abc.length;i++){
+    abc[i].onmouseover=function(){
+         // $( "[id^='sign']" ).className='shadow-lg p-3 mb-5 bg-white rounded';
+        this.className="shadow-lg p-3 mb-5 bg-white rounded";
+        this.onmouseout=function(){
+            this.className="shadow-sm p-3 mb-5 bg-white rounded"
+        }
+    }}
+</script>
+<script type="text/javascript" src="{{ url_for('static', filename='animejs/lib/anime.min.js') }}"></script>
+    <script src="https://unpkg.com/scrollreveal@4"></script>
+<script>
+    const abs=document.getElementsByName('sign');
+	ScrollReveal().reveal(abs, {
+    delay: -1,
+    duration: 500,
+    reset: true
+});
+	loadMore(abs).then(function () {
+    ScrollReveal().sync();});
+	</script>
+
+<!--<script>-->
+<!--    var abc=document.getElementsByName('sign');-->
+<!--    var abd=document.getElementsByName('ss');-->
+
+<!--    anime({-->
+<!--  targets:abc,-->
+<!-- translateX: 50,-->
+<!--  delay: anime.stagger(100) // increase delay by 100ms for each elements.-->
+<!--});-->
+<!--        anime({-->
+<!--  targets:abd,-->
+<!-- translateX: 50,-->
+<!--  delay: anime.stagger(100) // increase delay by 100ms for each elements.-->
+<!--});-->
+<!--</script>-->
+
+

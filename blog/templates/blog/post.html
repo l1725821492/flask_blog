@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/form.html' import render_form %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block content %}
+<h1 class="display-2 d-flex justify-content-center" >{{ post.title }}</h1>
+
+<p class="h6" style="float:right;width:150px">date: {{ moment(post.timestamp).format('LL') }}</p>
+<br>
+<hr>
+<blockquote class="blockquote" id="sign"><p class="mb-0" >{{post.body|md|safe}}  </p> </blockquote>
+<br><br>
+<hr>
+<h4>评论</h4>
+{%if comments%}
+
+
+{% for comment in comments %}
+<div class="shadow-sm p-3 mb-5 bg-white rounded" id="comments" style="width: 70%">
+    <div>
+        <div style="float:right;width:120px">
+<a class="btn btn-light btn-sm" href="{{ url_for('.reply_comment', comment_id=comment.id) }}">Reply</a>
+        <small data-toggle="tooltip" data-placement="right" data-delay="500"
+               data-timestamp="{{ comment.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ') }}">
+            {{ moment(comment.timestamp).fromNow() }}
+                                    </small>
+        </div>
+{% if comment.from_admin%}
+    <p class="h5">author   <span class="badge badge-dark">Author</span></p>
+{% else %}
+        <p class="h5">{{comment.author}} {% if comment.replied %}<span class="badge badge-light" >Reply</span>
+            <p class="alert alert-dark reply-body">{{ comment.replied.author }}:
+            <br>
+            {{ comment.replied.body }}
+            </p>
+            {% endif %}
+        </p>
+        {%endif%}
+    </div>
+    <hr>
+    <div class="boxs">
+    {{comment.body}}</div>
+</div>
+{%endfor%}
+
+{%else %}
+<div class="shadow-lg p-3 mb-5 bg-white rounded">no comments</div>
+{%endif%}
+
+{% if comments %}
+                {{ render_pagination(pagination, fragment='#comments') }}
+{% endif %}
+
+{% if request.args.get('reply') %}
+                <div class="alert alert-dark">
+                    Reply to <strong>{{ request.args.get('author') }}</strong>:
+                    <a class="float-right" href="{{ url_for('.show_post', post_id=post.id) }}">Cancel</a>
+                </div>
+{% endif %}
+
+{% if post.can_comment %}
+                <div id="comment-form">
+                    {{ render_form(form, action=request.full_path) }}
+                </div>
+{% else %}
+                <div class="tip"><h5>Comment disabled.</h5></div>
+{% endif %}
+    <script src="https://unpkg.com/scrollreveal@4"></script>
+
+{% endblock %}

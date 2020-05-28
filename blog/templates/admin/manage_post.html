@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+{% from 'bootstrap/form.html' import render_form %}
+{% from 'admin/macros.html' import form_field %}
+{% block title %}文章管理{% endblock %}
+
+{% block content %}
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#postModal">添加文章</button>
+    <div class="modal fade" id="postModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">添加文章</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{{ url_for('.add_post') }}" class="form-inline" enctype="multipart/form-data">
+          <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+
+    <input id="post" name="post" required="" type="file"><br>
+
+  <button type="submit"  class="btn btn-light">确定 </button>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% if posts %}
+<div class="table-responsive">
+<table class="table table-bordered table-light">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">标题</th>
+      <th scope="col">时间</th>
+      <th scope="col">标签</th>
+        <th scope="col">操作</th>
+
+    </tr>
+  </thead>
+  <tbody>
+
+  {% for post in posts %}
+    <tr>
+      <td>{{ loop.index + ((page - 1) * config.BLUELOG_MANAGE_POST_PER_PAGE) }}</td>
+      <td>{{post.title}}</td>
+      <td>{{ moment(post.timestamp).format('llll') }}</td>
+        <td>{% if post.tags %}
+            {% for tag in post.tags%}
+                <div style="flex-wrap: nowrap">
+            <span class="badge badge-success"  >{{tag.body}} </span>
+                <form class="custom-control custom-radio custom-control-inline" method="post"
+                  action="{{ url_for('.delete_tag', tag_id=tag.id) }}"  >
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure?');">-
+                </button>
+               </form></div>
+            {% endfor %}
+
+
+            {% endif %}
+        </td>
+        <td>
+              <form class="custom-control custom-radio custom-control-inline" method="post"
+                  action="{{ url_for('.delete_post', post_id=post.id, next=request.full_path) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');">删除
+                </button>
+            </form>
+            <a href="{{url_for('blog.show_post',post_id=post.id)}}"><button type="button" class="btn btn-success">查看</button></a>
+
+            <button  type="button" class="btn btn-primary "  onclick="clickMode('{{ post.id }}')" {{ post.id }} >+</button>
+                <!-- Modal -->
+
+<div class="modal fade" id="{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">添加标签</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       <form method="post" action="{{ url_for('.add_tag',post_id=post.id) }}" class="form-inline">
+           <div  style="display:block">
+     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <label  for="exampleFormControlFile1">{{ post.title }}</label>
+     <input id="name" required type="text" name="name" class="form-control" style="Float:left;height:40px;margin-left: 20px" value>
+           <button type="submit" class="btn btn-primary mb-2"  style="Float:left;height:40px;margin-left: 20px">确定</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+        </td>
+
+    </tr>
+            {% endfor %}
+
+  </tbody>
+</table>
+</div>
+
+
+<div class="page-footer">{{ render_pagination(pagination) }}</div>
+            {% endif %}
+{#    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>#}
+{#    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>#}
+
+    <script>function clickMode(id){
+        $('#'+id).modal({ keyboard: false});}</script>
+{% endblock %}
